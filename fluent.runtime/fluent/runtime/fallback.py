@@ -52,9 +52,15 @@ class FluentLocalization:
         self, msg_id: str, args: Union[Dict[str, Any], None] = None
     ) -> str:
         for bundle in self._bundles():
+            attr: str | None = None
+            if "." in msg_id:
+                msg_id, attr = msg_id.split(".", maxsplit=1)
             if not bundle.has_message(msg_id):
                 continue
-            msg = bundle.get_message(msg_id)
+            if attr is None:
+                msg = bundle.get_message(msg_id)
+            else:
+                msg = bundle.get_message(msg_id).attributes[attr]
             if not msg.value:
                 continue
             val, _errors = bundle.format_pattern(msg.value, args)
